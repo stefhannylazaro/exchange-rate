@@ -2,16 +2,16 @@
   <div class="convert-currency-header">
     <div
       class="item"
-      :class="{ active: tipoCambioSeleccionado === 'compra' }"
-      @click="seleccionarTipo('compra')"
+      :class="{ active: tipoCambioSeleccionado === EXCHANGE_TYPES.BUY }"
+      @click="seleccionarTipo(EXCHANGE_TYPES.BUY)"
     >
       Dólar compra <br /><strong>{{ purchaseRate }}</strong>
     </div>
 
     <div
       class="item"
-      :class="{ active: tipoCambioSeleccionado === 'venta' }"
-      @click="seleccionarTipo('venta')"
+      :class="{ active: tipoCambioSeleccionado === EXCHANGE_TYPES.SALE }"
+      @click="seleccionarTipo(EXCHANGE_TYPES.SALE)"
     >
       Dólar venta <br /><strong>{{ salesRate }}</strong>
     </div>
@@ -21,6 +21,7 @@
 <script lang="ts">
 import { defineComponent, computed  } from "vue";
 import { useExchangeRateStore } from "@/store/exchangeRate";
+import { EXCHANGE_TYPES } from "@/constants/exchangeRates";
 
 export default defineComponent({
   props: {
@@ -44,6 +45,7 @@ export default defineComponent({
       salesRate,
       tipoCambio: props.tipoCambioSeleccionado,
       seleccionarTipo,
+      EXCHANGE_TYPES,
     };
   },
 });

@@ -63,6 +63,7 @@
 import { ref, computed } from "vue";
 import { useExchangeRateStore } from "@/store/exchangeRate";
 import ConvertCurrencyHeader from "@/components/ConvertCurrencyHeader.vue";
+import { EXCHANGE_TYPES } from "@/constants/exchangeRates";
 
 export default {
   components: {
@@ -72,22 +73,22 @@ export default {
     const exchangeRateStore = useExchangeRateStore();
     const montoMoneda1  = ref<number>(0);
     const montoMoneda2 = ref<number>(0);
-    const tipoCambioSeleccionado = ref<string>("compra"); // init "compra"
+    const tipoCambioSeleccionado = ref<string>(EXCHANGE_TYPES.BUY); // init
 
     // computed
-    const currencylabel1 = computed(() => (tipoCambioSeleccionado.value === "compra" ? "Dólares" : "Soles"));
-    const currencylabel2 = computed(() => (tipoCambioSeleccionado.value === "compra" ? "Soles" : "Dólares"));
-    const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === "compra" ? "$" : "S/"));
-    const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === "compra" ? "S/" : "$"));
+    const currencylabel1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Dólares" : "Soles"));
+    const currencylabel2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Soles" : "Dólares"));
+    const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "$" : "S/"));
+    const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "S/" : "$"));
 
     // calculate change
     const calculateChange = (moneda: string) => {
       if (moneda === "moneda1") {
-        montoMoneda2.value = tipoCambioSeleccionado.value === "compra" 
+        montoMoneda2.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY 
           ? parseFloat((montoMoneda1.value * exchangeRateStore.usdToPen).toFixed(2)) 
           : parseFloat((montoMoneda1.value / exchangeRateStore.penToUsd).toFixed(2));
       } else {
-        montoMoneda1.value = tipoCambioSeleccionado.value === "venta" 
+        montoMoneda1.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.SALE
           ? parseFloat((montoMoneda2.value * exchangeRateStore.penToUsd).toFixed(2)) 
           : parseFloat((montoMoneda2.value / exchangeRateStore.usdToPen).toFixed(2));
       }
@@ -95,7 +96,7 @@ export default {
 
     // change conversion direction dollars to soles or soles to dollars 
     const changeConversion = () => {
-      tipoCambioSeleccionado.value = tipoCambioSeleccionado.value === "compra" ? "venta" : "compra";
+      tipoCambioSeleccionado.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? EXCHANGE_TYPES.SALE : EXCHANGE_TYPES.BUY;
       calculateChange("moneda1");
     };
 
@@ -123,6 +124,7 @@ export default {
       calculateChange,
       restrictNegatives,
       updateExchangeRate,
+      EXCHANGE_TYPES
     };
   },
 };
