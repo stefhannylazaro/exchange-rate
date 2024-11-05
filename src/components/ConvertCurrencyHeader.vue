@@ -2,10 +2,10 @@
   <div class="convert-currency-header">
     <div
       class="item"
-      :class="{ active: tipoCambioSeleccionado === EXCHANGE_TYPES.BUY }"
-      @click="seleccionarTipo(EXCHANGE_TYPES.BUY)"
+      :class="{ active: tipoCambioSeleccionado === EXCHANGE_TYPES.BUYS }"
+      @click="seleccionarTipo(EXCHANGE_TYPES.BUYS)"
     >
-      Dólar compra <br /><strong>{{ purchaseRate }}</strong>
+      Dólar compra <br /><strong>{{ buysRate }}</strong>
     </div>
 
     <div
@@ -32,7 +32,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const exchangeRateStore = useExchangeRateStore();
-    const purchaseRate = computed(() => exchangeRateStore.usdToPen);
+    const buysRate = computed(() => exchangeRateStore.usdToPen);
     const salesRate = computed(() => exchangeRateStore.penToUsd);
        
     // emitir evento al padre con la selección del tipo de cambio 
@@ -41,7 +41,7 @@ export default defineComponent({
     };
 
     return {
-      purchaseRate,
+      buysRate,
       salesRate,
       tipoCambio: props.tipoCambioSeleccionado,
       seleccionarTipo,

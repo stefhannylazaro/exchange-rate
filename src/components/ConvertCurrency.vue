@@ -10,7 +10,7 @@
       <div class="relative mb-12">
         <!-- card - initial dollar amount -->
         <div class="convert-currency__card">
-          <div class="convert-currency__text">{{ currencylabel1 }}</div>
+          <div class="convert-currency__text">{{ currencyLabel1 }}</div>
           <div class="convert-currency__amount">
             <p>Envías</p>
             <div class="amount-input">
@@ -35,9 +35,9 @@
           />
         </div>
 
-        <!-- card - initial amount in soles -->
+        <!-- card - initial soles amount -->
         <div class="convert-currency__card">
-          <div class="convert-currency__text">{{ currencylabel2 }}</div>
+          <div class="convert-currency__text">{{ currencyLabel2 }}</div>
           <div class="convert-currency__amount">
             <p>Recibes</p>
             <div class="amount-input">
@@ -60,148 +60,147 @@
 </template>
 
 <script lang="ts">
-import { ref, computed } from "vue";
-import { useExchangeRateStore } from "@/store/exchangeRate";
-import ConvertCurrencyHeader from "@/components/ConvertCurrencyHeader.vue";
-import { EXCHANGE_TYPES } from "@/constants/exchangeRates";
+  import { ref, computed } from "vue";
+  import { useExchangeRateStore } from "@/store/exchangeRate";
+  import ConvertCurrencyHeader from "@/components/ConvertCurrencyHeader.vue";
+  import { EXCHANGE_TYPES, USD_CURRENCY, PEN_CURRENCY } from "@/constants/exchangeRates";
 
-export default {
-  components: {
-    ConvertCurrencyHeader,
-  },
-  setup() {
-    const exchangeRateStore = useExchangeRateStore();
-    const montoMoneda1  = ref<number>(0);
-    const montoMoneda2 = ref<number>(0);
-    const tipoCambioSeleccionado = ref<string>(EXCHANGE_TYPES.BUY); // init
+  export default {
+    components: {
+      ConvertCurrencyHeader,
+    },
+    setup() {
+      const exchangeRateStore = useExchangeRateStore();
+      const montoMoneda1  = ref<number>(0);
+      const montoMoneda2 = ref<number>(0);
+      const tipoCambioSeleccionado = ref<string>(EXCHANGE_TYPES.BUYS); // init
 
-    // computed
-    const currencylabel1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Dólares" : "Soles"));
-    const currencylabel2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Soles" : "Dólares"));
-    const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "$" : "S/"));
-    const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "S/" : "$"));
+      // computed
+      const currencyLabel1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS ? USD_CURRENCY.LABEL : PEN_CURRENCY.LABEL));
+      const currencyLabel2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS ? PEN_CURRENCY.LABEL : USD_CURRENCY.LABEL));
+      const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS ? USD_CURRENCY.SYMBOL : PEN_CURRENCY.SYMBOL));
+      const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS ? PEN_CURRENCY.SYMBOL : USD_CURRENCY.SYMBOL));
 
-    // calculate change
-    const calculateChange = (moneda: string) => {
-      if (moneda === "moneda1") {
-        montoMoneda2.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY 
-          ? parseFloat((montoMoneda1.value * exchangeRateStore.usdToPen).toFixed(2)) 
-          : parseFloat((montoMoneda1.value / exchangeRateStore.penToUsd).toFixed(2));
-      } else {
-        montoMoneda1.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.SALE
-          ? parseFloat((montoMoneda2.value * exchangeRateStore.penToUsd).toFixed(2)) 
-          : parseFloat((montoMoneda2.value / exchangeRateStore.usdToPen).toFixed(2));
-      }
-    };
+      // calculate change
+      const calculateChange = (moneda: string) => {
+        const isBuys = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS;
+        const rate = isBuys ? exchangeRateStore.usdToPen : exchangeRateStore.penToUsd;
 
-    // change conversion direction dollars to soles or soles to dollars 
-    const changeConversion = () => {
-      tipoCambioSeleccionado.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? EXCHANGE_TYPES.SALE : EXCHANGE_TYPES.BUY;
-      calculateChange("moneda1");
-    };
+        if (moneda === "moneda1") {
+          montoMoneda2.value = parseFloat((isBuys ? montoMoneda1.value * rate : montoMoneda1.value / rate).toFixed(2));
+        } else {
+          montoMoneda1.value = parseFloat((!isBuys ? montoMoneda2.value * rate : montoMoneda2.value / rate).toFixed(2));
+        }
+      };
 
-    // actualizar tipo de cambio cuando viene de c. hijo
-    const updateExchangeRate = (tipo: string) => {
-      tipoCambioSeleccionado.value = tipo;
-      calculateChange("moneda1");
-    };
+      // change conversion direction dollars to soles or soles to dollars 
+      const changeConversion = () => {
+        tipoCambioSeleccionado.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUYS ? EXCHANGE_TYPES.SALE : EXCHANGE_TYPES.BUYS;
+        calculateChange("moneda1");
+      };
 
-    const restrictNegatives = (event: KeyboardEvent) => {
-      if (event.key === "-" || event.key === "e") {
-        event.preventDefault();
-      }
-    };
+      // actualizar tipo de cambio cuando viene de c. hijo
+      const updateExchangeRate = (tipo: string) => {
+        tipoCambioSeleccionado.value = tipo;
+        calculateChange("moneda1");
+      };
 
-    return {
-      montoMoneda1,
-      montoMoneda2,
-      currencylabel1,
-      currencylabel2,
-      currencySymbol1,
-      currencySymbol2,
-      tipoCambioSeleccionado,
-      changeConversion,
-      calculateChange,
-      restrictNegatives,
-      updateExchangeRate,
-      EXCHANGE_TYPES
-    };
-  },
-};
+      const restrictNegatives = (event: KeyboardEvent) => {
+        if (event.key === "-" || event.key === "e") {
+          event.preventDefault();
+        }
+      };
+
+      return {
+        montoMoneda1,
+        montoMoneda2,
+        currencyLabel1,
+        currencyLabel2,
+        currencySymbol1,
+        currencySymbol2,
+        tipoCambioSeleccionado,
+        changeConversion,
+        calculateChange,
+        restrictNegatives,
+        updateExchangeRate,
+        EXCHANGE_TYPES
+      };
+    },
+  };
 </script>
 
 <style lang="scss">
-.convert-currency {
-  &__card {
-    width: 100%;
-    border: 1px solid $purple-1;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
+  .convert-currency {
+    &__card {
+      width: 100%;
+      border: 1px solid $purple-1;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
 
-    &:first-child {
-      margin-bottom: 20px;
-    }
-  }
-
-  &__text {
-    font-size: 14px;
-    line-height: 24px;
-    color: $purple-1;
-    background: $gray-1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 6px 0 0 6px;
-    width: 80px;
-    flex-shrink: 0;
-  }
-
-  &__amount {
-    padding: 6px 12px 6px 0;
-    text-align: right;
-    flex-shrink: 0;
-
-    p {
-      font-size: 12px;
-      line-height: 14.22px;
-      color: $gray-3;
+      &:first-child {
+        margin-bottom: 20px;
+      }
     }
 
-    .amount-input {
+    &__text {
+      font-size: 14px;
+      line-height: 24px;
+      color: $purple-1;
+      background: $gray-1;
       display: flex;
       align-items: center;
-      color: $gray-4;
-      font-size: 16px;
-      line-height: 24px;
+      justify-content: center;
+      border-radius: 6px 0 0 6px;
+      width: 80px;
+      flex-shrink: 0;
+    }
 
-      label {
-        margin-right: 5px;
+    &__amount {
+      padding: 6px 12px 6px 0;
+      text-align: right;
+      flex-shrink: 0;
+
+      p {
+        font-size: 12px;
+        line-height: 14.22px;
+        color: $gray-3;
       }
 
-      input {
-        border: none;
-        outline: none;
-        background: transparent;
-        text-align: right;
+      .amount-input {
+        display: flex;
+        align-items: center;
+        color: $gray-4;
+        font-size: 16px;
+        line-height: 24px;
 
-        @media (max-width: 420px) {
-          max-width: 130px;
+        label {
+          margin-right: 5px;
+        }
+
+        input {
+          border: none;
+          outline: none;
+          background: transparent;
+          text-align: right;
+
+          @media (max-width: 420px) {
+            max-width: 130px;
+          }
         }
       }
     }
-  }
 
-  &__change-button {
-    position: absolute;
-    width: 42px;
-    height: 42px;
-    cursor: pointer;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    &__change-button {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      cursor: pointer;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
   }
-}
 </style>
 
