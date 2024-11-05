@@ -10,7 +10,7 @@
       <div class="relative mb-12">
         <!-- card - initial dollar amount -->
         <div class="convert-currency__card">
-          <div class="convert-currency__text">{{ currencylabel1 }}</div>
+          <div class="convert-currency__text">{{ currencyLabel1 }}</div>
           <div class="convert-currency__amount">
             <p>Envías</p>
             <div class="amount-input">
@@ -37,7 +37,7 @@
 
         <!-- card - initial amount in soles -->
         <div class="convert-currency__card">
-          <div class="convert-currency__text">{{ currencylabel2 }}</div>
+          <div class="convert-currency__text">{{ currencyLabel2 }}</div>
           <div class="convert-currency__amount">
             <p>Recibes</p>
             <div class="amount-input">
@@ -63,7 +63,7 @@
 import { ref, computed } from "vue";
 import { useExchangeRateStore } from "@/store/exchangeRate";
 import ConvertCurrencyHeader from "@/components/ConvertCurrencyHeader.vue";
-import { EXCHANGE_TYPES } from "@/constants/exchangeRates";
+import { EXCHANGE_TYPES, USD_CURRENCY, PEN_CURRENCY } from "@/constants/exchangeRates";
 
 export default {
   components: {
@@ -76,21 +76,20 @@ export default {
     const tipoCambioSeleccionado = ref<string>(EXCHANGE_TYPES.BUY); // init
 
     // computed
-    const currencylabel1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Dólares" : "Soles"));
-    const currencylabel2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "Soles" : "Dólares"));
-    const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "$" : "S/"));
-    const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? "S/" : "$"));
+    const currencyLabel1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? USD_CURRENCY.LABEL : PEN_CURRENCY.LABEL));
+    const currencyLabel2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? PEN_CURRENCY.LABEL : USD_CURRENCY.LABEL));
+    const currencySymbol1 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? USD_CURRENCY.SYMBOL : PEN_CURRENCY.SYMBOL));
+    const currencySymbol2 = computed(() => (tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY ? PEN_CURRENCY.SYMBOL : USD_CURRENCY.SYMBOL));
 
     // calculate change
     const calculateChange = (moneda: string) => {
+      const isBuying = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY;
+      const rate = isBuying ? exchangeRateStore.usdToPen : exchangeRateStore.penToUsd;
+
       if (moneda === "moneda1") {
-        montoMoneda2.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.BUY 
-          ? parseFloat((montoMoneda1.value * exchangeRateStore.usdToPen).toFixed(2)) 
-          : parseFloat((montoMoneda1.value / exchangeRateStore.penToUsd).toFixed(2));
+        montoMoneda2.value = parseFloat((isBuying ? montoMoneda1.value * rate : montoMoneda1.value / rate).toFixed(2));
       } else {
-        montoMoneda1.value = tipoCambioSeleccionado.value === EXCHANGE_TYPES.SALE
-          ? parseFloat((montoMoneda2.value * exchangeRateStore.penToUsd).toFixed(2)) 
-          : parseFloat((montoMoneda2.value / exchangeRateStore.usdToPen).toFixed(2));
+        montoMoneda1.value = parseFloat((!isBuying ? montoMoneda2.value * rate : montoMoneda2.value / rate).toFixed(2));
       }
     };
 
@@ -115,8 +114,8 @@ export default {
     return {
       montoMoneda1,
       montoMoneda2,
-      currencylabel1,
-      currencylabel2,
+      currencyLabel1,
+      currencyLabel2,
       currencySymbol1,
       currencySymbol2,
       tipoCambioSeleccionado,
