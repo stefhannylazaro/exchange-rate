@@ -57,7 +57,7 @@ export default defineComponent({
     justify-content: space-around;
     font-size: 12px;
     line-height: 13.86px;
-    border-bottom: 1px solid #e7e7ed;
+    border-bottom: 1px solid $gray-2;
 
     > .item {
       text-align: center;
@@ -65,8 +65,8 @@ export default defineComponent({
       cursor: pointer;
 
       &.active {
-        color: #2f00ff;
-        border-bottom: 2px solid #2f00ff;
+        color: $blue-1;
+        border-bottom: 2px solid $blue-1;
       }
     }
   }

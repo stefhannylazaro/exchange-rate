@@ -132,16 +132,9 @@ export default {
 
 <style lang="scss">
 .convert-currency {
-  // > div {
-  //   display: flex;
-  //   flex-direction: column;
-  //   align-items: center;
-  //   width: 100%;
-  // }
-
   &__card {
     width: 100%;
-    border: 1px solid #6e46e6;
+    border: 1px solid $purple-1;
     border-radius: 6px;
     display: flex;
     justify-content: space-between;
@@ -155,8 +148,8 @@ export default {
   &__text {
     font-size: 14px;
     line-height: 24px;
-    color: #6e46e6;
-    background: #f3f3f6;
+    color: $purple-1;
+    background: $gray-1;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -173,13 +166,13 @@ export default {
     p {
       font-size: 12px;
       line-height: 14.22px;
-      color: #717191;
+      color: $gray-3;
     }
 
     .amount-input {
       display: flex;
       align-items: center;
-      color: #3d3d67;
+      color: $gray-4;
       font-size: 16px;
       line-height: 24px;
 
